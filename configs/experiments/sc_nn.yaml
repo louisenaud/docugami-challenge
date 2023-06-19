@@ -1,0 +1,6 @@
+# @package _global_
+defaults:
+  - override /model: spectral_nn
+  - override /preprocessing_pipeline: count
+
+exp_name: "spectral_clustering_nn"

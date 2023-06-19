@@ -1,0 +1,6 @@
+_target_: sklearn.cluster.SpectralClustering
+n_clusters: 9
+affinity: 'nearest_neighbors'
+n_neighbors: 10
+assign_labels: 'discretize'
+

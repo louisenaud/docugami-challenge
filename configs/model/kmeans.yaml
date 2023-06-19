@@ -1,0 +1,6 @@
+_target_: clusteval.clusteval
+cluster: 'kmeans'
+evaluate: 'silhouette'
+metric: 'euclidean'
+min_clust: 3
+max_clust: 15

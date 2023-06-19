@@ -1,0 +1,7 @@
+_target_: clusteval.clusteval.clusteval
+cluster: 'agglomerative'
+evaluate: 'silhouette'
+metric: 'euclidean'
+min_clust: 2
+max_clust: 10
+

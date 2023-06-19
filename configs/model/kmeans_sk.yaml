@@ -1,0 +1,2 @@
+_target_: sklearn.cluster.KMeans
+n_clusters: 2

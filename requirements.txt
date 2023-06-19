@@ -1,0 +1,19 @@
+numpy
+scikit-learn
+matplotlib
+streamlit
+xmltodict
+pandas
+loguru
+lxml
+seaborn
+python-dotenv[cli]
+sklearn-evaluation
+plotly
+nose
+rednose
+nltk # for stopwords
+mlflow
+hydra-core
+clusteval
+black

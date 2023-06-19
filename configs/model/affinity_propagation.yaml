@@ -1,0 +1,3 @@
+_target_: sklearn.cluster.AffinityPropagation
+damping: 0.5
+affinity: 'euclidean'

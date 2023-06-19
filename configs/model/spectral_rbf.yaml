@@ -1,0 +1,5 @@
+_target_: sklearn.cluster.SpectralClustering
+n_clusters: 4
+affinity: 'rbf'
+assign_labels: 'discretize'
+

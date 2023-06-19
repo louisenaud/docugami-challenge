@@ -1,0 +1,23 @@
+_target_: src.utils.hydra_sklearn_pipeline.make_pipeline
+
+#StepName:
+#    _target_: <class to initiating the step>
+#    param1: <step's first parameter>
+#    param2: <step's second parameter, etc.>
+
+steps_config: # use yaml list syntax to preserve to order
+    - TfidfVectorizer:
+        _target_: sklearn.feature_extraction.text.TfidfVectorizer
+        lowercase: True
+        stop_words: 'english'
+        max_df: 0.3
+        min_df: 10
+        use_idf: False
+
+    - TruncatedSVD:
+        _target_: sklearn.decomposition.TruncatedSVD
+        n_components: 100
+
+    - Normalizer:
+        _target_: sklearn.preprocessing.Normalizer
+        copy: False

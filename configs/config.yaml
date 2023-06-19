@@ -1,0 +1,13 @@
+defaults:
+  # can be any config file in the preprocessing_pipeline folder
+  - preprocessing_pipeline: count_tsvd
+  - model: spectral_rbf
+  - _self_
+
+
+# You might add another configurations: which model to use, which visualizations, etc.
+# See also: https://medium.com/pytorch/hydra-a-fresh-look-at-configuration-for-machine-learning-projects-50583186b710
+print_config: True
+seed: 42
+mlflow:
+  experiment_name: spectral-clustering-rbf
