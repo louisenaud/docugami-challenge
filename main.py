@@ -63,7 +63,7 @@ def main(config):
     titles = data["clean_title"].values
     full_titles = data["title"].values
     # set-up mlflow tracking
-    mlflow.set_tracking_uri("file://" + utils.get_original_cwd() + "/mlruns")
+    mlflow.set_tracking_uri(f"file://{utils.get_original_cwd()}/mlruns")
     mlflow.set_experiment(config.mlflow.experiment_name)
     log.info("Instantiating preprocessing pipeline")
     preprocessing_pipeline = hydra.utils.instantiate(config.preprocessing_pipeline, _recursive_=False)
@@ -105,24 +105,20 @@ def main(config):
         log.info("Getting tags and most representative paper for clusters.")
         data["y"] = labels_pred
 
-        vectorizers = []
-
-        for i in range(0, n_labels_pred):
-            vectorizers.append(CountVectorizer(stop_words=list(stop_words_all), lowercase=True))
-
+        vectorizers = [CountVectorizer(stop_words=list(stop_words_all), lowercase=True) for _ in range(n_labels_pred)]
         vectorized_data = []
 
         for current_cluster, cvec in enumerate(vectorizers):
             try:
                 vectorized_data.append(cvec.fit_transform(data.loc[data["y"] == current_cluster, "clean_title"]))
             except Exception as e:
-                print("Not enough instances in cluster: " + str(current_cluster))
+                print(f"Not enough instances in cluster: {str(current_cluster)}")
                 vectorized_data.append(None)
 
         num_topics_per_cluster = 4
 
         lda_models = []
-        for i in range(0, n_labels_pred):
+        for _ in range(n_labels_pred):
             lda = LatentDirichletAllocation(
                 n_components=num_topics_per_cluster,
                 max_iter=10,
@@ -132,12 +128,6 @@ def main(config):
             )
             lda_models.append(lda)
 
-        clusters_lda_data = []
-
-        for current_cluster, lda in enumerate(lda_models):
-            if vectorized_data[current_cluster] is not None:
-                clusters_lda_data.append((lda.fit_transform(vectorized_data[current_cluster])))
-
         top5keywords = []
         best_papers = []
 
@@ -145,14 +135,8 @@ def main(config):
             if vectorized_data[current_vectorizer] is not None:
                 current_keywords = selected_topics(lda, vectorizers[current_vectorizer])
                 top5keywords.append(current_keywords[:5])
-                # distances
-                if isinstance(clusterer, sklearn.cluster.KMeans):
-                    indices = np.argwhere(labels_pred == current_vectorizer)
-                    current_distances = distances[indices, current_vectorizer]
-                    min_idx = np.argmin(current_distances)
-                    best_paper_idx = indices[min_idx]
-                    best_papers.append(str(full_titles[best_paper_idx]))
-                elif isinstance(clusterer, sklearn.cluster.AffinityPropagation):
+                # distances to cluster centroid
+                if isinstance(clusterer, sklearn.cluster.AffinityPropagation):
                     cluster_center_idx = cluster_centers_indices[current_vectorizer]
                     best_papers.append(str(full_titles[cluster_center_idx]))
                 else:
@@ -174,7 +158,7 @@ def main(config):
             "results",
             f"exp_{config.mlflow.experiment_name}_{save_dict['clusterer']}_n_clusters_{save_dict['n_clusters']}_dim_{save_dict['dim']}.json",
         )
-        save_dict.update(metrics_)
+        save_dict |= metrics_
         with open(out_file, "w") as fh:
             json.dump(save_dict, fh)
 
