@@ -57,6 +57,7 @@ def main(config):
     dir_path = os.path.dirname(os.path.realpath(__file__))
     data_file = os.path.join(dir_path, "data/titles.csv")
     data = load_csv_data(data_file)
+    data.drop_duplicates(["title"], inplace=True)
     # get full titles and cleaned titles
     titles = data["clean_title"].values
     full_titles = data["title"].values
@@ -76,7 +77,6 @@ def main(config):
     with mlflow.start_run():
         clusterer.fit(X)
         labels_pred = clusterer.labels_
-        # clusterer.predict(X_test)
         n_labels_pred = len(np.unique(labels_pred))
         mlflow.log_params(clusterer.get_params())
         mlflow.log_artifacts(utils.to_absolute_path("configs"))
