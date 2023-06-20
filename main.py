@@ -7,6 +7,7 @@ For project: docugami-challenge
 Description:
 Usage:
 """
+import datetime
 import json
 import logging
 import os
@@ -33,7 +34,7 @@ def selected_topics(model, vectorizer, top_n=3):
     keywords = []
 
     for idx, topic in enumerate(model.components_):
-        words = [(vectorizer.get_feature_names_out()[i], topic[i]) for i in topic.argsort()[: -top_n - 1 : 1]]
+        words = [(vectorizer.get_feature_names_out()[i], topic[i]) for i in topic.argsort()[: -top_n - 1: 1]]
         for word in words:
             if word[0] not in current_words:
                 keywords.append(word)
@@ -56,6 +57,9 @@ def main(config):
     warnings.filterwarnings("ignore")
     # load csv data
     dir_path = os.path.dirname(os.path.realpath(__file__))
+    # result_exp_folder = os.path.join(dir_path, "results", datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+    result_exp_folder = os.path.join(dir_path, "results", datetime.datetime.now().strftime("%Y-%m-%d"))
+    os.makedirs(result_exp_folder, exist_ok=True)
     data_file = os.path.join(dir_path, "data/titles.csv")
     data = load_csv_data(data_file)
     data.drop_duplicates(["title"], inplace=True)
@@ -105,29 +109,39 @@ def main(config):
         log.info("Getting tags and most representative paper for clusters.")
         data["y"] = labels_pred
 
-        vectorizers = [CountVectorizer(stop_words=list(stop_words_all), lowercase=True) for _ in range(n_labels_pred)]
+        log.info("Create a vectorizer for each cluster")
+        vectorizers = []
+
+        for i in range(0, n_labels_pred):
+            vectorizers.append(CountVectorizer(min_df=5, max_df=.9, stop_words=list(stop_words_all), lowercase=True))
+
+        log.info("Vectorize data in each cluster")
         vectorized_data = []
 
         for current_cluster, cvec in enumerate(vectorizers):
             try:
-                vectorized_data.append(cvec.fit_transform(data.loc[data["y"] == current_cluster, "clean_title"]))
+                vectorized_data.append(cvec.fit_transform(data.loc[data['y'] == current_cluster, 'clean_title']))
             except Exception as e:
-                print(f"Not enough instances in cluster: {str(current_cluster)}")
+                log.info("Not enough instances in cluster: " + str(current_cluster))
                 vectorized_data.append(None)
 
-        num_topics_per_cluster = 4
-
+        num_topics_per_cluster = 5
+        log.info(f"Creating a Latent Dirichlet Allocation for each cluster, with {num_topics_per_cluster} components.")
         lda_models = []
-        for _ in range(n_labels_pred):
-            lda = LatentDirichletAllocation(
-                n_components=num_topics_per_cluster,
-                max_iter=10,
-                learning_method="online",
-                verbose=False,
-                random_state=1,
-            )
+        for i in range(0, n_labels_pred):
+            lda = LatentDirichletAllocation(n_components=num_topics_per_cluster, max_iter=10, learning_method='online',
+                                            verbose=False, random_state=1)
             lda_models.append(lda)
 
+        log.info("Fit LDA model for each cluster and transform data with it.")
+        clusters_lda_data = []
+        for current_cluster, lda in enumerate(lda_models):
+            if vectorized_data[current_cluster] is not None:
+                clusters_lda_data.append((lda.fit_transform(vectorized_data[current_cluster])))
+            # else:
+            #     clusters_lda_data.append([])
+
+        log.info("Extract top 5 keywords per topic and select paper that is most representative of the cluster")
         top5keywords = []
         best_papers = []
 
@@ -145,6 +159,10 @@ def main(config):
                     min_idx = np.argmin(current_distances)
                     best_paper_idx = indices[min_idx]
                     best_papers.append(str(full_titles[best_paper_idx]))
+            else:
+                # in case data is None, we still want to keep track of clusters
+                top5keywords.append([])
+                best_papers.append([])
 
         save_dict = {
             "clusterer": str(clusterer.__class__.__name__),
@@ -154,8 +172,7 @@ def main(config):
             "best_paper": best_papers,
         }
         out_file = os.path.join(
-            dir_path,
-            "results",
+            result_exp_folder,
             f"exp_{config.mlflow.experiment_name}_{save_dict['clusterer']}_n_clusters_{save_dict['n_clusters']}_dim_{save_dict['dim']}.json",
         )
         save_dict |= metrics_
