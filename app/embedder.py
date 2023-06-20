@@ -36,16 +36,13 @@ def make_embeddings(session_state):
             # TfidfVectorizer(stop_words="english", use_idf=False, min_df=min_df, max_df=max_df),  # , n_features=50_000
             CountVectorizer(stop_words="english", min_df=10, max_df=0.5, lowercase=True),  # , n_features=50_000
             # TfidfTransformer(use_idf=False),
-            TruncatedSVD(n_components=20, random_state=0),
+            TruncatedSVD(n_components=2, random_state=0),
             # TruncatedSVD(random_state=0),
             Normalizer(copy=False),
         )
-        # _embedder = vectorizer(input=session_state.phrases, max_df=.3, min_df=10, stop_words="english",
-        #                             lowercase=True, use_idf=False)
 
     with timer(name="compute_embeddings", disable=False):
-        # session_state.embeddings = compute_embeddings(_embedder, session_state.phrases)
-        session_state.embeddings = vectorizer.fit_transform(session_state.phrases)
+        session_state.embeddings = vectorizer.fit_transform(session_state.titles)
 
 
 @st.cache_resource
