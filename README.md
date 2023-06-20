@@ -1,10 +1,15 @@
 # Docugami Code / ML Challenge
 
 ## Install and run
-In order to install dependencies:
+First, clone the repository:
 ```shell
 git clone https://github.com/louisenaud/docugami-challenge.git
 cd docugami-challenge
+```
+There is a `run.sh` script that has all actions in it, but if you prefer to proceed step by step, you can follow the 
+next command lines.
+You will need to install dependencies:
+```shell
 conda create -n docugami-challenge python=3.10
 conda activate docugami-challenge
 pip install -r requirements.txt
@@ -29,14 +34,11 @@ Most experiments can be run and tracked in mlflow with:
 mlflow ui
 python -m main model=kmeans_sk model.n_clusters=3
 ```
-## Text similarity matrix computation
 
-
-
-## Install
-
-## Run
-
+The report is a streamlit app, that you can run as follows:
+```shell
+streamlit run run_app.py
+```
 ## Repository structure
 
 
