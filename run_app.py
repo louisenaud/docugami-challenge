@@ -29,13 +29,6 @@ def read_markdown_file(markdown_file):
     return Path(markdown_file).read_text()
 
 
-#
-# def load_results(session_state: st.session_state) -> None:
-#     dim = st.selectbox('Select dimensionality value for vectors after dimensionality reduction',
-#                        (2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 'all'))
-#     if isinstance(dim, int):
-
-
 def main():
     session_state = st.session_state
     if "titles" not in st.session_state:
@@ -52,7 +45,7 @@ def main():
     st.sidebar.write("""This is an app for clustering of Covid-19 Paper Titles by topics.""")
     st.sidebar.write(
         """
-                     Computing text embeddings using Count and Term Frequency vectorization,
+                     Computing text embeddings using Count vectorization,
                      running clustering model, showing results in different ways."""
     )
     st.sidebar.header("Menu")
@@ -71,25 +64,7 @@ def main():
     if mode == "Data Exploration":
         data_exploration_page()
     elif mode == "Experiments":
-        st.text("Here are the results of the experiments")
-        exp_files = []
-        labels = []
-        files_sorted = sorted(os.listdir(os.path.join(repo_root_path, "results")))
-        for file in files_sorted:
-            if file.startswith("exp") and file.endswith(".json"):
-                labels.append(file.replace(".json", ""))
-                exp_files.append(os.path.join(repo_root_path, "results", file))
-
-        option = st.selectbox("Select Experiment to display results", exp_files)
-        with open(option) as fh:
-            data = json.load(fh)
-
-        st.json(data)
-
-        st.header("Conclusions")
-        conc_md = read_markdown_file("report/conclusions.md")
-        st.markdown(conc_md)
-
+        experiments_page()
     elif mode == "Load data":
         st.title("Explore data more interactively.")
         load_data(session_state)
@@ -118,7 +93,40 @@ def main():
             csv_download_link(df, sidebar=False)
 
 
+def experiments_page():
+    """
+    The experiments_page function displays the results of the experiments.
+
+    :return: The results of the experiments
+    """
+    st.text("Here are the results of the experiments")
+    exp_files = []
+    labels = []
+    files_sorted = sorted(os.listdir(os.path.join(repo_root_path, "results")))
+    for file in files_sorted:
+        if file.startswith("exp") and file.endswith(".json"):
+            labels.append(file.replace(".json", ""))
+            exp_files.append(os.path.join(repo_root_path, "results", file))
+
+    option = st.selectbox("Select Experiment to display results", exp_files)
+    with open(option) as fh:
+        data = json.load(fh)
+
+    st.json(data)
+
+    st.header("Conclusions")
+    conc_md = read_markdown_file("report/conclusions.md")
+    st.markdown(conc_md)
+
+
 def preliminary_experiments_page():
+    """
+    The preliminary_experiments_page function is used to display the results of the initial set of experiments.
+    It displays a markdown file with some text explaining what was done, and then it displays an image and a dataframe
+    with the metrics obtained for each dimensionality value.
+
+    :return: A page with the results of the initial set of experiments
+    """
     st.title("Initial set of experiments")
     md = read_markdown_file("report/initial_set_experiments.md")
     st.markdown(md)
@@ -144,6 +152,13 @@ def preliminary_experiments_page():
 
 
 def data_exploration_page():
+    """
+    The data_exploration_page function is used to create the data exploration page of the Streamlit app.
+    It displays a title, header and Markdown text from files in the report folder. It also displays an image from
+    the results' folder.
+
+    :return: A page that contains the data exploration section of the report
+    """
     st.title("Data Exploration")
     st.header("Problem Description")
 
