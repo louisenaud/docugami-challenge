@@ -114,9 +114,9 @@ def experiments_page():
 
     st.json(data)
 
-    st.header("Conclusions")
-    conc_md = read_markdown_file("report/conclusions.md")
-    st.markdown(conc_md)
+    # st.header("Conclusions")
+    # conc_md = read_markdown_file("report/conclusions.md")
+    # st.markdown(conc_md)
 
 
 def preliminary_experiments_page():
