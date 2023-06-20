@@ -17,7 +17,7 @@ python -m scripts.run_data_exploration
 # perform preliminary experiments
 python -m scripts.run_preliminary_experiments
 
-mlflow ui
+#mlflow ui
 
 # kmeans experiments
 python main.py model=kmeans_sk model.n_clusters=2 mlflow.experiment_name=kmeans
