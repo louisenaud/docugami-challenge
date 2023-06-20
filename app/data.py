@@ -4,7 +4,7 @@ Created by:  Louise Naud
 On:          6/18/23
 At:          1:12 PM
 For project: docugami-challenge
-Description: Load data to be clustered
+Description: Load data to be clustered interactively
 Usage:
 """
 
@@ -39,6 +39,7 @@ def load_data(session_state: st.session_state) -> None:
     if data_file is not None and load_data_button:
         with timer("load data", disable=False):
             df = pd.read_csv(data_file)
+            df.drop_duplicates(["title"], inplace=True)
 
             if hasattr(df, "clean_title"):
                 titles = df["clean_title"]
