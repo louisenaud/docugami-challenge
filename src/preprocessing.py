@@ -31,9 +31,10 @@ from loguru import logger
 #     return normalized
 
 
-def get_titles_in_df(titles: List[str], out_csv_file: Union[str, os.PathLike] = os.path.join(repo_root_path,
-                                                                                             "data/titles1.csv")) -> pd.DataFrame:
-    regex_non_alpha = re.compile('[^a-zA-Z\w-]')  # REGEX for chars that are not latin letters or dash
+def get_titles_in_df(
+    titles: List[str], out_csv_file: Union[str, os.PathLike] = os.path.join(repo_root_path, "data/titles1.csv")
+) -> pd.DataFrame:
+    regex_non_alpha = re.compile("[^a-zA-Z\w-]")  # REGEX for chars that are not latin letters or dash
 
     cleaned_text = []
     for title in titles:
@@ -42,12 +43,12 @@ def get_titles_in_df(titles: List[str], out_csv_file: Union[str, os.PathLike] = 
         # filter each word
         for index, item in enumerate(words):
             # remove words that are not words in latin alphabet
-            item = regex_non_alpha.sub('', item)
+            item = regex_non_alpha.sub("", item)
             # Lowercase the text
             item = item.lower()
             # If the length of item is lower than 3, remove item
             if len(item) < 3:
-                item = ''
+                item = ""
             # Put item back to the list of words
             words[index] = item
         # remove items in items_to_clean
@@ -57,10 +58,7 @@ def get_titles_in_df(titles: List[str], out_csv_file: Union[str, os.PathLike] = 
         # add in list to put in dataframe
         cleaned_text.append(cleaned_title)
     # tokens = tokenize_and_stem(text)
-    data = {
-        "title": title,
-        "clean_title": cleaned_text
-    }
+    data = {"title": titles, "clean_title": cleaned_text}
     df = pd.DataFrame(data)
     if out_csv_file:
         logger.info(f"Saving csv file to {out_csv_file}")
@@ -80,27 +78,25 @@ def save_file(file, name):
 class RegexReplacer(object):
     def __init__(self):
         self.patterns = [
-            (r'\w+:\/{2}[\d\w-]+(\.[\d\w-]+)*(?:(?:\/[^\s/]*))*', '<url>'),
-            (r'@\w+', '<user>'),
-            (r'&\w+', '')  # Replace "&..." with ''
+            (r"\w+:\/{2}[\d\w-]+(\.[\d\w-]+)*(?:(?:\/[^\s/]*))*", "<url>"),
+            (r"@\w+", "<user>"),
+            (r"&\w+", ""),  # Replace "&..." with ''
         ]
-        self.patterns = [(re.compile(regrex), repl) for (regrex, repl) in
-                         self.patterns]
+        self.patterns = [(re.compile(regrex), repl) for (regrex, repl) in self.patterns]
 
     # Replace the words that match the patterns with replacement words
     def replace(self, text):
         s = text
-        for (pattern, repl) in self.patterns:
+        for pattern, repl in self.patterns:
             s = re.sub(pattern, repl, s)
         return s
 
 
 class ProcessText:
-
     def __init__(self):
         self.tknz = TweetTokenizer()
         self.replacer = RegexReplacer()
-        self.stopwords = set(stopwords.words('english'))
+        self.stopwords = set(stopwords.words("english"))
         self.punc = string.punctuation
         self.lemmatizer = WordNetLemmatizer()
 
@@ -114,15 +110,15 @@ class ProcessText:
 
             # Stem words
 
-            doc[i] = [self.lemmatizer.lemmatize(w, pos='v') for w in doc[i]]
+            doc[i] = [self.lemmatizer.lemmatize(w, pos="v") for w in doc[i]]
 
             # concat
-            doc[i] = ' '.join(w for w in doc[i])
+            doc[i] = " ".join(w for w in doc[i])
 
         return doc
 
 
-@hydra.main(config_path='../configs/data_preprocess.yaml')
+@hydra.main(config_path="../configs/data_preprocess.yaml")
 def main(config):
     train_text = read_file(config.data.text.train)
     val_text = read_file(config.data.text.val)
@@ -145,5 +141,5 @@ def main(config):
     save_file(val_label, config.processed_data.label.val)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

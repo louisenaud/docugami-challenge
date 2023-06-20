@@ -3,5 +3,5 @@ cluster: 'agglomerative'
 evaluate: 'silhouette'
 metric: 'euclidean'
 min_clust: 2
-max_clust: 10
+max_clust: 15
 

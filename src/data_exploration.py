@@ -105,7 +105,7 @@ def get_top_k_words(results: Dict, k: int = 20) -> List:
     top_k_words = []
     word_dict = results["words"]
     for i in range(k):
-        index = results["word_occ_indices_sorted"][0][-i-1]
+        index = results["word_occ_indices_sorted"][0][-i - 1]
         current_word = word_dict[index]
         current_occurence = results["n_occurence_words"][0][index]
         logger.info(f"Word #{i} {current_word} appears a total of {current_occurence} times")

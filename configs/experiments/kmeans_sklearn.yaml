@@ -1,0 +1,6 @@
+# @package _global_
+defaults:
+  - override /model: kmeans_sk
+  - override /preprocessing_pipeline: count_tsvd
+
+exp_name: "kmeans_sk"

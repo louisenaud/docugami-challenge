@@ -21,11 +21,12 @@ from src.utils.file_io import papers_from_xml_file, get_title_text_all_papers
 
 def main():
     # argument parser
-    parser = ArgumentParser(prog='Get XML file and pre-process data')
-    parser.add_argument('--xml', default=XML_URL, help="URL to the XML file that contains the papers' data", type=str)
-    parser.add_argument('--data-dir', default=os.path.join(repo_root_path, "data"), help="Path ")
-    parser.add_argument('--out-csv', default=os.path.join(repo_root_path, "data", "titles1.csv"),
-                        help="path to csv file to save titles")
+    parser = ArgumentParser(prog="Get XML file and pre-process data")
+    parser.add_argument("--xml", default=XML_URL, help="URL to the XML file that contains the papers' data", type=str)
+    parser.add_argument("--data-dir", default=os.path.join(repo_root_path, "data"), help="Path ")
+    parser.add_argument(
+        "--out-csv", default=os.path.join(repo_root_path, "data", "titles.csv"), help="path to csv file to save titles"
+    )
     # parse argument
     args = parser.parse_args()
     # get some data
@@ -51,8 +52,8 @@ def main():
 
     # save titles and preprocessed titles in csv
     logger.info(f"Pre-processing titles from papers and saving in csv file at {args.out_csv}")
-    _ = get_titles_in_df(titles, out_csv_file=args.out_csv)
+    df = get_titles_in_df(titles, out_csv_file=args.out_csv)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

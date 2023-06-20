@@ -16,23 +16,28 @@ import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
 
 from settings import repo_root_path, stop_words_english
-from src.data_exploration import get_counter_of_fields, get_papers_with_field, analyze_titles, get_top_k_words, \
-    get_bottom_k_words
+from src.data_exploration import (
+    get_counter_of_fields,
+    get_papers_with_field,
+    analyze_titles,
+    get_top_k_words,
+    get_bottom_k_words,
+)
 from src.utils.file_io import load_csv_data
 from src.utils.file_io import papers_from_xml_file
 
 
 def main():
-    parser = ArgumentParser(prog='cli', description="Script to perform data exploration and save results in json.")
+    parser = ArgumentParser(prog="cli", description="Script to perform data exploration and save results in json.")
     xml_default = os.path.join(repo_root_path, "data", "mendeley_document_library_2020-03-25.xml")
     out_dir = os.path.join(repo_root_path, "results")
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
     out_default = os.path.join(out_dir, "data_exploration.json")
-    parser.add_argument('--xml-file', default=xml_default, help="Path to xml files with papers.")
-    parser.add_argument('--out-json', default=out_default, help="Path to json result file.")
+    parser.add_argument("--xml-file", default=xml_default, help="Path to xml files with papers.")
+    parser.add_argument("--out-json", default=out_default, help="Path to json result file.")
     csv_default = os.path.join(repo_root_path, "data", "titles1.csv")
-    parser.add_argument('--csv-file', default=csv_default, help="Title csv file to load.")
+    parser.add_argument("--csv-file", default=csv_default, help="Title csv file to load.")
 
     args = parser.parse_args()
 
@@ -40,9 +45,7 @@ def main():
     papers = papers_from_xml_file(args.xml_file)
     counter = get_counter_of_fields(papers)
     keys_all_papers = [k for k, v in counter.items() if v == len(papers)]
-    paper_analytics = {
-        "n_papers": len(papers)
-    }
+    paper_analytics = {"n_papers": len(papers)}
 
     for k in keys_all_papers:
         n_papers, _ = get_papers_with_field(papers, k)
@@ -50,8 +53,8 @@ def main():
         # logger.info(f"Number of papers with ")
 
     df = load_csv_data(args.csv_file)
-    titles = df['title']
-    clean_titles = df['clean_title']
+    titles = df["title"]
+    clean_titles = df["clean_title"]
 
     # vectorizer
     vectorizer = CountVectorizer(stop_words=list(stop_words_english))
@@ -72,9 +75,9 @@ def main():
     plt.bar(words, occurences)
 
     plt.xlabel("Courses offered")
-    plt.ylabel('Occurrences')
+    plt.ylabel("Occurrences")
     plt.title("Top 25 words per occurrence")
-    plt.xticks(ind, words, rotation=30, ha='right')
+    plt.xticks(ind, words, rotation=30, ha="right")
     # plt.show()
 
     # plt.show()
@@ -132,5 +135,5 @@ def main():
     #
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

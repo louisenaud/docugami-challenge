@@ -19,4 +19,4 @@ def timer(name, disable=False):
     start = time.time()
     yield
     if not disable:
-        logging.info(f'[{name}] done in {(time.time() - start) * 1000:.1f} ms')
+        logging.info(f"[{name}] done in {(time.time() - start) * 1000:.1f} ms")

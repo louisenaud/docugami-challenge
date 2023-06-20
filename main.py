@@ -7,194 +7,155 @@ For project: docugami-challenge
 Description:
 Usage:
 """
+import json
 import logging
 import os
-import pickle
 import warnings
 from pprint import pprint
-import pandas as pd
 
-import clusteval as ce
 import hydra
-# from src.utils.hydra_sklearn_pipeline import make_pipeline
-import matplotlib.pyplot as plt
 import mlflow
 import mlflow.sklearn
 import numpy as np
 import sklearn.base
 from hydra import utils
 from hydra.utils import instantiate
-from sklearn_evaluation import plot
-from src.utils.file_io import load_csv_data
-from src.utils.printing import print_config
-from sklearn.cluster import KMeans, SpectralClustering
+from sklearn.decomposition import LatentDirichletAllocation
 from sklearn.feature_extraction.text import CountVectorizer
 
 from settings import stop_words_all
+from src.utils.file_io import load_csv_data
+
+
+def selected_topics(model, vectorizer, top_n=3):
+    current_words = []
+    keywords = []
+
+    for idx, topic in enumerate(model.components_):
+        words = [(vectorizer.get_feature_names_out()[i], topic[i]) for i in topic.argsort()[: -top_n - 1: 1]]
+        for word in words:
+            if word[0] not in current_words:
+                keywords.append(word)
+                current_words.append(word[0])
+
+    keywords.sort(key=lambda x: x[1])
+    keywords.reverse()
+    return_values = []
+    for i in keywords:
+        return_values.append(i[0])
+    return return_values
+
+
 log = logging.getLogger(__name__)
 
 
-def read_file(name):
-    with open(utils.to_absolute_path(name), 'rb') as fp:
-        f = pickle.load(fp)
-
-    return f
-
-
-def plot_clusteval(X):
-    plt.figure()
-    fig, axs = plt.subplots(2, 4, figsize=(25, 10))
-
-    # dbindex
-    results = ce.dbindex.fit(X)
-    _ = ce.dbindex.plot(results, title='dbindex', ax=axs[0][0], visible=False)
-    axs[1][0].scatter(X[:, 0], X[:, 1], c=results['labx']);
-    axs[1][0].grid(True)
-
-    # silhouette
-    results = ce.silhouette.fit(X)
-    _ = ce.silhouette.plot(results, title='silhouette', ax=axs[0][1], visible=False)
-    axs[1][1].scatter(X[:, 0], X[:, 1], c=results['labx']);
-    axs[1][1].grid(True)
-
-    # derivative
-    results = ce.derivative.fit(X)
-    _ = ce.derivative.plot(results, title='derivative', ax=axs[0][2], visible=False)
-    axs[1][2].scatter(X[:, 0], X[:, 1], c=results['labx']);
-    axs[1][2].grid(True)
-
-    # dbscan
-    results = ce.dbscan.fit(X)
-    _ = ce.dbscan.plot(results, title='dbscan', ax=axs[0][3], visible=False)
-    axs[1][3].scatter(X[:, 0], X[:, 1], c=results['labx']);
-    axs[1][3].grid(True)
-
-    plt.show()
-
-
-@hydra.main(config_path='configs',
-            config_name='config')
+@hydra.main(config_path="configs", config_name="config")
 def main(config):
+    pprint(config, indent=4)
     warnings.filterwarnings("ignore")
-    # Pretty print config using Rich library
-    if config.get("print_config"):
-        print_config(config, resolve=True)
-    np.random.seed(40)
+    # load csv data
     dir_path = os.path.dirname(os.path.realpath(__file__))
     data_file = os.path.join(dir_path, "data/titles.csv")
-
     data = load_csv_data(data_file)
-
+    # get full titles and cleaned titles
     titles = data["clean_title"].values
-    # titles = data["title"].values
-
-    mlflow.set_tracking_uri('file://' + utils.get_original_cwd() + '/mlruns')
+    full_titles = data["title"].values
+    # set-up mlflow tracking
+    mlflow.set_tracking_uri("file://" + utils.get_original_cwd() + "/mlruns")
     mlflow.set_experiment(config.mlflow.experiment_name)
     log.info("Instantiating preprocessing pipeline")
-    print(config.preprocessing_pipeline)
-    preprocessing_pipeline = hydra.utils.instantiate(
-        config.preprocessing_pipeline, _recursive_=False
-    )
-
+    preprocessing_pipeline = hydra.utils.instantiate(config.preprocessing_pipeline, _recursive_=False)
     log.info("Instantiating Clustering Model")
     clusterer = instantiate(config.model)
-
-    # silhouette_scorer = make_scorer(sklearn.metrics.silhouette_score)
+    # vectorize data
+    log.info("Vectorizing titles from papers")
     X = preprocessing_pipeline.fit_transform(titles)
     if not isinstance(X, np.ndarray):
         X = X.toarray()
 
-    # elbow curve for experiment
-    kmeans = KMeans(random_state=1, n_init=5, )
-
-    # plot elbow curve
-    range_n_clusters = list(range(2, 15))
-    ax1 = plot.elbow_curve(X, kmeans, range_n_clusters=range_n_clusters)
-    #
-    # # plot silhouette analysis of provided clusters
-    # ax2 = plot.silhouette_analysis(X, kmeans, range_n_clusters=range_n_clusters)
-    plt.show()
-    #
-    # # elbow curve for experiment
-    # sc = SpectralClustering(random_state=1, n_init=5)
-    #
-    # # plot elbow curve
-    # # ax1 = plot.elbow_curve(X, sc, range_n_clusters=range_n_clusters)
-    #
-    # # plot silhouette analysis of provided clusters
-    # ax2 = plot.silhouette_analysis(X, sc, range_n_clusters=range_n_clusters)
-    # plt.show()
-
     with mlflow.start_run():
 
-        if isinstance(clusterer, sklearn.base.ClusterMixin):
-            log.info(f"Training sklearn model {clusterer.__class__.__name__}")
-            clusterer.fit(X)
-            labels_pred = clusterer.labels_
-            # clusterer.predict(X_test)
-            n_labels_pred = len(np.unique(labels_pred))
-            mlflow.log_params(clusterer.get_params())
-            mlflow.log_artifacts(utils.to_absolute_path("configs"))
-            log.info(f"Done clustering for {n_labels_pred} clusters")
+        clusterer.fit(X)
+        labels_pred = clusterer.labels_
+        # clusterer.predict(X_test)
+        n_labels_pred = len(np.unique(labels_pred))
+        mlflow.log_params(clusterer.get_params())
+        mlflow.log_artifacts(utils.to_absolute_path("configs"))
+        log.info(f"Done clustering for {n_labels_pred} clusters")
+        distances = clusterer.fit_transform(X)
 
-            # mlflow.log_metric('silhouette', eval(config.metrics.score)(X.toarray(), labels_pred))
-
-        else:
-            results = clusterer.fit(X)
-            labels_pred = results['labx']
-            # clusterer.predict(X_test)
-            n_labels_pred = len(np.unique(labels_pred))
-            out_path = os.path.join(dir_path, 'outputs/learned_model_v1')
-            clusterer.save(out_path)
-            clusterer.plot()
-            clusterer.plot_silhouette()
-            clusterer.scatter()
-            # Plot the dendrogram and make the cut at distance height 60
-            # y = clusterer.dendrogram(max_d=20)
-
-            # Cluster labels for this particular cut
-            # print(y['labx'])
-
-            # mlflow.sklearn.save_model(
-        #     clusterer,
-        #     utils.to_absolute_path(
-        #         f'models/kbest-{clusterer.__class__.__name__}-{n_labels_pred}-clusters'
-        #     ),
-        # )
         log.info("Computing metrics")
         metrics_ = {
             "silhouette": sklearn.metrics.silhouette_score(X, labels_pred),
             "calinski": sklearn.metrics.calinski_harabasz_score(X, labels_pred),
-            "davies": sklearn.metrics.davies_bouldin_score(X, labels_pred)
+            "davies": sklearn.metrics.davies_bouldin_score(X, labels_pred),
         }
         log.info(metrics_)
         mlflow.log_metrics(metrics_)
 
         # get topics
-        vectorizer = CountVectorizer(stop_words=stop_words_all)
-        vectors = vectorizer.fit_transform(titles)
+        log.info("Getting tags and most representative paper for clusters.")
+        data["y"] = labels_pred
 
-        df = pd.DataFrame({
-            'title' : data['titles'].values,
-            'vector': vectors.tolist(),
-                           'cluster': labels_pred.tolist()})
+        vectorizers = []
 
-        for cluster in range(n_labels_pred):
-            current_cluster_samples = df[df['cluster']==cluster]
-            current_cluster_titles = current_cluster_samples['title'].values
-            current_cluster_vectors = current_cluster_samples['vector'].values
-            # run LDA for topics on vectors
+        for i in range(0, n_labels_pred):
+            vectorizers.append(CountVectorizer(stop_words=list(stop_words_all), lowercase=True))
 
-            # get scores
+        vectorized_data = []
 
-            # get centroid
+        for current_cluster, cvec in enumerate(vectorizers):
+            try:
+                vectorized_data.append(cvec.fit_transform(data.loc[data["y"] == current_cluster, "clean_title"]))
+            except Exception as e:
+                print("Not enough instances in cluster: " + str(current_cluster))
+                vectorized_data.append(None)
 
-            # get distances to centroid
+        num_topics_per_cluster = 4
 
-            # get element with highest score and shortest distance to centroid
+        lda_models = []
+        for i in range(0, n_labels_pred):
+            lda = LatentDirichletAllocation(
+                n_components=num_topics_per_cluster,
+                max_iter=10,
+                learning_method="online",
+                verbose=False,
+                random_state=1,
+            )
+            lda_models.append(lda)
 
+        clusters_lda_data = []
+
+        for current_cluster, lda in enumerate(lda_models):
+            if vectorized_data[current_cluster] is not None:
+                clusters_lda_data.append((lda.fit_transform(vectorized_data[current_cluster])))
+
+        top5keywords = []
+        best_papers = []
+
+        for current_vectorizer, lda in enumerate(lda_models):
+            if vectorized_data[current_vectorizer] is not None:
+                current_keywords = selected_topics(lda, vectorizers[current_vectorizer])
+                top5keywords.append(current_keywords[:5])
+                # distances
+                indices = np.argwhere(labels_pred == current_vectorizer)
+                current_distances = distances[indices, current_vectorizer]
+                min_idx = np.argmin(current_distances)
+                best_paper_idx = indices[min_idx]
+                best_papers.append(full_titles[best_paper_idx])
+
+        save_dict = {
+            "clusterer": clusterer.__class__.__name__,
+            "n_clusters": n_labels_pred,
+            "dim": X.shape[-1],
+            "top_words": top5keywords,
+            "best_paper": best_papers
+        }
+        out_file = f"results/exp_{save_dict['clusterer']}_n_clusters_{save_dict['n_clusters']}_dim_{save_dict['dim']}.json"
+        save_dict.update(metrics_)
+        with open(out_file, "w") as fh:
+            json.dump(save_dict, fh)
 
 
 if __name__ == "__main__":
     main()
-

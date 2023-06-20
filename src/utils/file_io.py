@@ -17,7 +17,7 @@ from hydra import utils
 
 
 def read_file(name: Union[str, os.PathLike]) -> Any:
-    with open(utils.to_absolute_path(name), 'rb') as fp:
+    with open(utils.to_absolute_path(name), "rb") as fp:
         f = pickle.load(fp)
 
     return f
@@ -25,16 +25,16 @@ def read_file(name: Union[str, os.PathLike]) -> Any:
 
 def papers_from_xml_file(xml_file_path: Union[str, os.PathLike]) -> List[Dict]:
     """
-        The get_docs function takes in a path to an XML file and returns a list of dictionaries, each dictionnary being the
-        data of one paper.
+    The get_docs function takes in a path to an XML file and returns a list of dictionaries, each dictionnary being the
+    data of one paper.
 
-        :param xml_file_path:Union[str, os.PathLike]: Specify the type of input that is expected
-        :return: A list of dictionaries
-        """
+    :param xml_file_path:Union[str, os.PathLike]: Specify the type of input that is expected
+    :return: A list of dictionaries
+    """
     with open(xml_file_path) as fd:
         doc = xmltodict.parse(fd.read(), process_namespaces=True)
 
-    papers = doc['xml']['records']['record']
+    papers = doc["xml"]["records"]["record"]
     return papers
 
 
@@ -47,7 +47,7 @@ def get_title_text_from_paper(paper_dict: Dict) -> str:
     :return: The title of the paper
     """
     # all papers have the "titles" field
-    doc_text = paper_dict['titles']['title']
+    doc_text = paper_dict["titles"]["title"]
 
     return doc_text
 

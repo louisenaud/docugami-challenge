@@ -18,8 +18,8 @@ XML_URL = "https://github.com/midas-network/COVID-19/raw/master/documents/mendel
 
 repo_root_path = os.path.dirname(os.path.realpath(__file__))
 
-stop_words_english = set(stopwords.words('english')).union(ENGLISH_STOP_WORDS)
-items_to_clean = {'\n', '\n\n', '\n\n\n', '\n\n\n\n', '', ' '}.union(set(stop_words_english))
+stop_words_english = set(stopwords.words("english")).union(ENGLISH_STOP_WORDS)
+items_to_clean = {"\n", "\n\n", "\n\n\n", "\n\n\n\n", "", " "}.union(set(stop_words_english))
 
 stop_words_covid = {
     "2020",

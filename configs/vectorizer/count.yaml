@@ -1,6 +1,0 @@
-_target_: sklearn.feature_extraction.text.CountVectorizer
-lowercase: True
-stop_words: 'english'
-max_df: 0.3
-min_df: 10
-#max_features: None

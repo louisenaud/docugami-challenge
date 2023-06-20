@@ -11,9 +11,14 @@ import os
 from argparse import ArgumentParser
 
 import numpy as np
+import pandas as pd
 from loguru import logger
+from sklearn import metrics
 from sklearn.cluster import DBSCAN
+from sklearn.cluster import KMeans
+from sklearn.decomposition import TruncatedSVD
 from sklearn.feature_extraction.text import CountVectorizer
+from sklearn_evaluation import plot
 
 from settings import repo_root_path
 from settings import stop_words_english, stop_words_all
@@ -21,44 +26,81 @@ from src.topic_modeling import run_lda
 from src.utils.file_io import load_csv_data
 
 
+def score(X, n_clusters):
+    model = KMeans(n_init="auto", n_clusters=n_clusters, random_state=1)
+    model.fit(X)
+    predicted = model.predict(X)
+    if not isinstance(X, np.ndarray):
+        X = X.toarray()
+    return {
+        "n_clusters": n_clusters,
+        "silhouette_score": metrics.silhouette_score(X, predicted),
+        "calinski_harabasz_score": metrics.calinski_harabasz_score(X, predicted),
+        "davies_bouldin_score": metrics.davies_bouldin_score(X, predicted),
+    }
+
+
 def main():
-    parser = ArgumentParser(prog='cli')
+    parser = ArgumentParser(prog="cli")
     csv_default = os.path.join(repo_root_path, "data", "titles1.csv")
-    parser.add_argument('--csv-file', default=csv_default, help="Title csv file to load.")
+    out_dir = os.path.join(repo_root_path, "results")
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
+    parser.add_argument("--csv-file", default=csv_default, help="Title csv file to load.")
 
     args = parser.parse_args()
 
     # load data
     df = load_csv_data(args.csv_file)
-    titles = df['title']
-    clean_titles = df['clean_title']
+    titles = df["title"]
+    clean_titles = df["clean_title"]
 
     # vectorizer
-    vectorizer = CountVectorizer(stop_words=list(stop_words_english))
+    vectorizer = CountVectorizer(stop_words=list(stop_words_all))
     vectors = vectorizer.fit_transform(clean_titles)
-    total_words = np.sum(vectors)
-    n_words_per_paper = np.sum(vectors, axis=-1)
-    n_occurence_words = np.sum(vectors, axis=0)
-    size_dict = n_occurence_words.shape[-1]
-    n_occurence_words = n_occurence_words.tolist()
-    max_occurence = np.max(n_occurence_words)
-    max_word_idx = np.argmax(n_occurence_words)
-    word_dict = vectorizer.get_feature_names_out()
-    max_word = word_dict[max_word_idx]
-    word_occ_indices_sorted = np.argsort(n_occurence_words)
-    print(word_occ_indices_sorted.shape)
-    words_sorted_by_occ = word_dict[word_occ_indices_sorted]
-    top_20_words = []
-    for i in range(20):
-        current_word = word_dict[word_occ_indices_sorted[0][-i]]
-        print(current_word)
-        top_20_words.append(current_word)
 
-    # print(words_sorted_by_occ[0][-20:])
-    logger.info(f"Word {max_word} appears {max_occurence} times in all documents")
-    # sorted_words = [word_dict[idx] for idx in word_occ_indices_sorted[::-1]]
-    # for i in range(20):
-    #     print(sorted_words[i])
+    # ELBOW curve with k-means
+    kmeans = KMeans(random_state=1, n_init=5)
+
+    # plot elbow curve
+    ax = plot.elbow_curve(vectors, kmeans, range_n_clusters=range(1, 30))
+    fig = ax.get_figure()
+    out_fig_path = os.path.join(out_dir, "elbow_curve_all_dim.png")
+    fig.savefig(out_fig_path)
+    # get all metrics in dataframe
+    df_metrics = pd.DataFrame(score(vectors, n_clusters) for n_clusters in (2, 3, 4, 5, 6, 7, 8, 9, 10))
+    df_metrics.set_index("n_clusters", inplace=True)
+
+    (
+        df_metrics.style.highlight_max(
+            subset=["silhouette_score", "calinski_harabasz_score"], color="lightgreen"
+        ).highlight_min(subset=["davies_bouldin_score"], color="lightgreen")
+    )
+    df_metrics.to_csv(os.path.join(out_dir, "metrics_all_dim.csv"))
+
+    # test different dimensions
+    for n_comp in [2, 3, 4, 5, 10, 100]:
+        logger.info(f"Computing ELBOW and selected metrics for data in space of dimension {n_comp}")
+        kmeans = KMeans(random_state=1, n_init=5)
+        svd = TruncatedSVD(n_components=n_comp)
+        x_red = svd.fit_transform(vectors)
+        # plot elbow curve
+        ax = plot.elbow_curve(x_red, kmeans, range_n_clusters=range(1, 30))
+        fig = ax.get_figure()
+        out_fig_path = os.path.join(out_dir, f"elbow_curve_dim_{n_comp}.png")
+        fig.savefig(out_fig_path)
+        # get all metrics in dataframe
+        df_metrics = pd.DataFrame(
+            score(x_red, n_clusters) for n_clusters in (2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)
+        )
+        df_metrics.set_index("n_clusters", inplace=True)
+
+        (
+            df_metrics.style.highlight_max(
+                subset=["silhouette_score", "calinski_harabasz_score"], color="lightgreen"
+            ).highlight_min(subset=["davies_bouldin_score"], color="lightgreen")
+        )
+        df_metrics.to_csv(os.path.join(out_dir, f"metrics_dim_{n_comp}.csv"))
 
     # basic clustering
     db_scan = DBSCAN()
@@ -67,10 +109,10 @@ def main():
     top_words, top_weights = run_lda(vectorizer, clean_titles, 10, 10)
     print(top_words)
 
-    vectorizer2 = CountVectorizer(stop_words=stop_words_all)
+    vectorizer2 = CountVectorizer(stop_words=list(stop_words_english))
     top_words, top_weights = run_lda(vectorizer2, clean_titles, 10, 10)
     print(top_words)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
