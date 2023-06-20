@@ -34,22 +34,40 @@ python main.py model=kmeans_sk model.n_clusters=4 preprocessing_pipeline=count_t
 python main.py model=spectral_nn model.n_clusters=2 mlflow.experiment_name=scnn
 python main.py model=spectral_nn model.n_clusters=3 mlflow.experiment_name=scnn
 python main.py model=spectral_nn model.n_clusters=4 mlflow.experiment_name=scnn
+python main.py model=spectral_nn model.n_clusters=5 mlflow.experiment_name=scnn
+python main.py model=spectral_nn model.n_clusters=8 mlflow.experiment_name=scnn
+python main.py model=spectral_nn model.n_clusters=10 mlflow.experiment_name=scnn
 python main.py model=spectral_nn model.n_clusters=2 preprocessing_pipeline=count mlflow.experiment_name=scnn
 python main.py model=spectral_nn model.n_clusters=3 preprocessing_pipeline=count mlflow.experiment_name=scnn
 python main.py model=spectral_nn model.n_clusters=4 preprocessing_pipeline=count mlflow.experiment_name=scnn
+python main.py model=spectral_nn model.n_clusters=5 preprocessing_pipeline=count mlflow.experiment_name=scnn
+python main.py model=spectral_nn model.n_clusters=8 preprocessing_pipeline=count mlflow.experiment_name=scnn
+python main.py model=spectral_nn model.n_clusters=10 preprocessing_pipeline=count mlflow.experiment_name=scnn
 python main.py model=spectral_nn model.n_clusters=2 preprocessing_pipeline=count_tsvd_dim3 mlflow.experiment_name=scnn
 python main.py model=spectral_nn model.n_clusters=3 preprocessing_pipeline=count_tsvd_dim3 mlflow.experiment_name=scnn
 python main.py model=spectral_nn model.n_clusters=4 preprocessing_pipeline=count_tsvd_dim3 mlflow.experiment_name=scnn
+python main.py model=spectral_nn model.n_clusters=5 preprocessing_pipeline=count_tsvd_dim3 mlflow.experiment_name=scnn
+python main.py model=spectral_nn model.n_clusters=8 preprocessing_pipeline=count_tsvd_dim3 mlflow.experiment_name=scnn
+python main.py model=spectral_nn model.n_clusters=10 preprocessing_pipeline=count_tsvd_dim3 mlflow.experiment_name=scnn
 
 python main.py model=spectral_rbf model.n_clusters=2 mlflow.experiment_name=scrbf
 python main.py model=spectral_rbf model.n_clusters=3 mlflow.experiment_name=scrbf
 python main.py model=spectral_rbf model.n_clusters=4 mlflow.experiment_name=scrbf
+python main.py model=spectral_rbf model.n_clusters=5 mlflow.experiment_name=scrbf
+python main.py model=spectral_rbf model.n_clusters=8 mlflow.experiment_name=scrbf
+python main.py model=spectral_rbf model.n_clusters=10 mlflow.experiment_name=scrbf
 python main.py model=spectral_rbf model.n_clusters=2 preprocessing_pipeline=count mlflow.experiment_name=scrbf
 python main.py model=spectral_rbf model.n_clusters=3 preprocessing_pipeline=count mlflow.experiment_name=scrbf
 python main.py model=spectral_rbf model.n_clusters=4 preprocessing_pipeline=count mlflow.experiment_name=scrbf
+python main.py model=spectral_rbf model.n_clusters=5 preprocessing_pipeline=count mlflow.experiment_name=scrbf
+python main.py model=spectral_rbf model.n_clusters=8 preprocessing_pipeline=count mlflow.experiment_name=scrbf
+python main.py model=spectral_rbf model.n_clusters=10 preprocessing_pipeline=count mlflow.experiment_name=scrbf
 python main.py model=spectral_rbf model.n_clusters=2 preprocessing_pipeline=count_tsvd_dim3 mlflow.experiment_name=scrbf
 python main.py model=spectral_rbf model.n_clusters=3 preprocessing_pipeline=count_tsvd_dim3 mlflow.experiment_name=scrbf
 python main.py model=spectral_rbf model.n_clusters=4 preprocessing_pipeline=count_tsvd_dim3 mlflow.experiment_name=scrbf
+python main.py model=spectral_rbf model.n_clusters=5 preprocessing_pipeline=count_tsvd_dim3 mlflow.experiment_name=scrbf
+python main.py model=spectral_rbf model.n_clusters=8 preprocessing_pipeline=count_tsvd_dim3 mlflow.experiment_name=scrbf
+python main.py model=spectral_rbf model.n_clusters=10 preprocessing_pipeline=count_tsvd_dim3 mlflow.experiment_name=scrbf
 
 # affinity propagation experiments
 python main.py model=affinity_propagation mlflow.experiment_name=affinity_propagation
