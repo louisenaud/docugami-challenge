@@ -7,16 +7,14 @@ For project: docugami-challenge
 Description:
 Usage:
 """
-from argparse import ArgumentParser
 from time import time
 from typing import List, Tuple
-import numpy as np
 
 import matplotlib.pyplot as plt
+import numpy as np
 import sklearn
-from sklearn.datasets import fetch_20newsgroups
-from sklearn.decomposition import NMF, MiniBatchNMF, LatentDirichletAllocation
-from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
+from sklearn.decomposition import NMF, LatentDirichletAllocation
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 
 def plot_top_words(

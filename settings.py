@@ -38,7 +38,7 @@ stop_words_covid = {
     "ncov",
     "sarscov",
     "using",
-    "based"
+    "based",
 }
 stop_words_all = list(stop_words_covid.union(set(ENGLISH_STOP_WORDS)))
 

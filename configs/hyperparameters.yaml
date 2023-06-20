@@ -8,8 +8,8 @@ defaults:
   - vectorizer: count
 
 GridSearchCV:
-#  scoring: sklearn.metrics.silhouette_score #[sklearn.metrics.silhouette_score, sklearn.metrics.calinski_harabasz_score, sklearn.metrics.davies_bouldin_score]
-#  cv: 5
+  #  scoring: sklearn.metrics.silhouette_score #[sklearn.metrics.silhouette_score, sklearn.metrics.calinski_harabasz_score, sklearn.metrics.davies_bouldin_score]
+  #  cv: 5
   n_jobs: 4
 
 metrics:
