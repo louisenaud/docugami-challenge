@@ -20,6 +20,7 @@ from app.clustering import make_clustering
 from app.data import load_data
 from app.downloader import csv_download_link
 from app.embedder import make_embeddings
+from settings import repo_root_path
 
 st.set_page_config(page_title="Covid-19 Paper titles clustering", layout="wide")
 
@@ -69,6 +70,25 @@ def main():
 
     if mode == "Data Exploration":
         data_exploration_page()
+    elif mode == "Experiments":
+        st.text("Here are the results of the experiments")
+        exp_files = []
+        labels = []
+        files_sorted = sorted(os.listdir(os.path.join(repo_root_path, "results")))
+        for file in files_sorted:
+            if file.startswith("exp") and file.endswith(".json"):
+                labels.append(file.replace(".json", ''))
+                exp_files.append(os.path.join(repo_root_path, "results", file))
+
+        option = st.selectbox(
+            "Select Experiment to display results",
+            exp_files
+        )
+        with open(option) as fh:
+            data = json.load(fh)
+
+        st.json(data)
+
     elif mode == "Load data":
         load_data(session_state)
         with st.expander("Show data"):
@@ -102,7 +122,7 @@ def preliminary_experiments_page():
 
     dim = st.selectbox(
         "Select dimensionality value for vectors after dimensionality reduction",
-        (2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, "all"),
+        (2, 3, 4, 5, 10, 100, "all"),
     )
     if isinstance(dim, int):
         elbow_path = f"results/elbow_curve_dim_{dim}.png"
