@@ -90,7 +90,7 @@ def main():
         st.title("Explore data more interactively.")
         load_data(session_state)
         with st.expander("Show data"):
-            st.write(pd.Series(session_state.titles, name="titles"))
+            st.write(pd.Series(session_state.titles, name="title"))
 
         if session_state.titles is not None:
             make_embeddings(session_state)
@@ -166,6 +166,10 @@ def data_exploration_page():
         "going to remove them from our dictionary for clustering titles into similar group, as these words are not "
         "likely to help us discriminate between different groups."
     )
+
+    st.header("Choice of representation")
+    rep_md = read_markdown_file("report/representation.md")
+    st.markdown(rep_md)
 
 
 if __name__ == "__main__":
