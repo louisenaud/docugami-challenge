@@ -52,8 +52,13 @@ python main.py model=spectral_rbf model.n_clusters=3 preprocessing_pipeline=coun
 python main.py model=spectral_rbf model.n_clusters=4 preprocessing_pipeline=count_tsvd_dim3 mlflow.experiment_name=scrbf
 
 # affinity propagation experiments
-python main.py model=affinity_propagation mlflow.experiment_name=scrbf
+python main.py model=affinity_propagation mlflow.experiment_name=affinity_propagation
 python main.py model=affinity_propagation preprocessing_pipeline=count mlflow.experiment_name=affinity_propagation
 python main.py model=affinity_propagation preprocessing_pipeline=count_tsvd_dim3 mlflow.experiment_name=affinity_propagation
+
+# DBSCAN experiments
+python main.py model=dbscan mlflow.experiment_name=dbscan
+python main.py model=dbscan preprocessing_pipeline=count mlflow.experiment_name=dbscan
+python main.py model=dbscan preprocessing_pipeline=count_tsvd_dim3 mlflow.experiment_name=dbscan
 
 
