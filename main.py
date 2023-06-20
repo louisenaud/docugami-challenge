@@ -138,8 +138,6 @@ def main(config):
         for current_cluster, lda in enumerate(lda_models):
             if vectorized_data[current_cluster] is not None:
                 clusters_lda_data.append((lda.fit_transform(vectorized_data[current_cluster])))
-            # else:
-            #     clusters_lda_data.append([])
 
         log.info("Extract top 5 keywords per topic and select paper that is most representative of the cluster")
         top5keywords = []
