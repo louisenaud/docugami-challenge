@@ -40,6 +40,37 @@ The report is a streamlit app, that you can run as follows:
 streamlit run run_app.py
 ```
 ## Repository structure
-
+```
+├── app                          <- Python files related to the streamlit app 
+├── configs                      <- Hydra configuration files
+│   ├── model                    <- Model configs
+│   ├── preprocessing_pipeline   <- Preprocessing pipeline configs
+│   └── config.yaml              <- Main config for training
+│
+├── data                   <- Project data
+│
+├── report                 <- Markdown file to be imported in streamlit app
+│
+├── results                <- Storing results here
+│
+├── scripts                <- Python and Shell scripts
+│
+├── src                    <- Source code
+│   ├── utils                    <- Utility scripts
+│   │
+│   ├── data_exploration.py      <- Functions for data exploration
+│   ├── topic_modeling.py        <- Functions for topic modeling
+│   └── preprocessing.py         <- Functions for text pre-processing
+│
+├── tests                  <- Tests of any kind
+│
+├── .env                      <- file for storing private environment variables
+├── .gitignore                <- List of files ignored by git
+├── requirements.txt          <- File for installing python dependencies
+├── main.py                   <- File for running experiments
+├── run.sh                    <- shell script to run everything
+├── run_app.py                <- Python script to run streamlit app
+└── README.md
+```
 
 ## Experiments
