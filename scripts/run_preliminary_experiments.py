@@ -42,7 +42,7 @@ def score(X, n_clusters):
 
 def main():
     parser = ArgumentParser(prog="cli")
-    csv_default = os.path.join(repo_root_path, "data", "titles1.csv")
+    csv_default = os.path.join(repo_root_path, "data", "titles.csv")
     out_dir = os.path.join(repo_root_path, "results")
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
@@ -106,11 +106,11 @@ def main():
     db_scan = DBSCAN()
     predicted_labels = db_scan.fit_predict(vectors)
 
-    top_words, top_weights = run_lda(vectorizer, clean_titles, 10, 10)
+    top_words, top_weights, _ = run_lda(vectorizer, clean_titles, 10, 10)
     print(top_words)
 
     vectorizer2 = CountVectorizer(stop_words=list(stop_words_english))
-    top_words, top_weights = run_lda(vectorizer2, clean_titles, 10, 10)
+    top_words, top_weights, _ = run_lda(vectorizer2, clean_titles, 10, 10)
     print(top_words)
 
 
