@@ -86,6 +86,10 @@ def main():
 
         st.json(data)
 
+        st.header("Conclusions")
+        conc_md = read_markdown_file("report/conclusions.md")
+        st.markdown(conc_md)
+
     elif mode == "Load data":
         st.title("Explore data more interactively.")
         load_data(session_state)
