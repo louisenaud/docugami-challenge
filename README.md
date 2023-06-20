@@ -51,7 +51,9 @@ The report is a streamlit app, that you can run as follows:
 streamlit run run_app.py
 ```
 ## Repository structure
-This repository relies heavily on the scikit-learn library
+This repository relies heavily on the [scikit-learn](https://scikit-learn.org/stable/index.html) library for 
+vectorization, clustering models and metrics. The experiments are configured with the [Hydra](https://hydra.cc) 
+library, and tracked with [MLFlow](https://mlflow.org).
 ```
 ├── app                          <- Python files related to the streamlit app 
 ├── configs                      <- Hydra configuration files
