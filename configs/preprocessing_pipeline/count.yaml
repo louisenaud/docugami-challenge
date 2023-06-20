@@ -1,4 +1,4 @@
-_target_: utils.hydra_sklearn_pipeline.make_pipeline
+_target_: src.utils.hydra_sklearn_pipeline.make_pipeline
 
 #StepName:
 #    _target_: <class to initiating the step>
