@@ -1,5 +1,5 @@
 We are given an xml file listing papers on Covid-19 Research until March 25th 2020. 
-The goal is to:
+The goal of this assignment is to:
 1. create groups of similar papers, 
 2. give either a title or group of tags to each group,
 3. find the paper in each group that is the most representative.
@@ -16,4 +16,4 @@ where the similarity is a measure that compares the distance between clusters wi
 the size of the clusters themselves. It takes values in R+, and values closer to 0 
 indicate a better partition.
 
-All of these scores tend to give better results for convex clusters.
+It is worth noting that all of these scores tend to give better results for convex clusters.

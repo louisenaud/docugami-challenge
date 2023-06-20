@@ -1,5 +1,5 @@
 In order to cluster papers, we first need to know which data is available for all papers in xml file.
-The keys appear in all papers in the list, but only `titles`, `database` and `ref-type` are also non-null for every 
+The following keys appear in all papers in the list, but only `titles`, `database` and `ref-type` are also non-null for every 
 paper:
 ```json
 {
