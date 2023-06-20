@@ -36,7 +36,7 @@ def main():
     out_default = os.path.join(out_dir, "data_exploration.json")
     parser.add_argument("--xml-file", default=xml_default, help="Path to xml files with papers.")
     parser.add_argument("--out-json", default=out_default, help="Path to json result file.")
-    csv_default = os.path.join(repo_root_path, "data", "titles1.csv")
+    csv_default = os.path.join(repo_root_path, "data", "titles.csv")
     parser.add_argument("--csv-file", default=csv_default, help="Title csv file to load.")
 
     args = parser.parse_args()
