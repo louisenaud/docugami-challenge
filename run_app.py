@@ -77,19 +77,17 @@ def main():
         files_sorted = sorted(os.listdir(os.path.join(repo_root_path, "results")))
         for file in files_sorted:
             if file.startswith("exp") and file.endswith(".json"):
-                labels.append(file.replace(".json", ''))
+                labels.append(file.replace(".json", ""))
                 exp_files.append(os.path.join(repo_root_path, "results", file))
 
-        option = st.selectbox(
-            "Select Experiment to display results",
-            exp_files
-        )
+        option = st.selectbox("Select Experiment to display results", exp_files)
         with open(option) as fh:
             data = json.load(fh)
 
         st.json(data)
 
     elif mode == "Load data":
+        st.title("Explore data more interactively.")
         load_data(session_state)
         with st.expander("Show data"):
             st.write(pd.Series(session_state.titles, name="titles"))
@@ -100,6 +98,7 @@ def main():
     elif mode == "Initial Set of Experiments":
         preliminary_experiments_page()
     elif mode == "Clustering":
+        st.title("Run experiments interactively")
         if session_state.titles is None:
             st.write("No data. Load data for clustering.")
             return

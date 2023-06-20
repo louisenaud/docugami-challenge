@@ -32,7 +32,7 @@ def selected_topics(model, vectorizer, top_n=3):
     keywords = []
 
     for idx, topic in enumerate(model.components_):
-        words = [(vectorizer.get_feature_names_out()[i], topic[i]) for i in topic.argsort()[: -top_n - 1: 1]]
+        words = [(vectorizer.get_feature_names_out()[i], topic[i]) for i in topic.argsort()[: -top_n - 1 : 1]]
         for word in words:
             if word[0] not in current_words:
                 keywords.append(word)
@@ -74,7 +74,6 @@ def main(config):
         X = X.toarray()
 
     with mlflow.start_run():
-
         clusterer.fit(X)
         labels_pred = clusterer.labels_
         # clusterer.predict(X_test)
@@ -91,9 +90,6 @@ def main(config):
         # elif isinstance(clusterer, sklearn.cluster.SpectralClustering):
         elif isinstance(clusterer, sklearn.cluster.AffinityPropagation):
             cluster_centers_indices = clusterer.cluster_centers_indices_
-
-
-
 
         log.info("Computing metrics")
         metrics_ = {
@@ -170,9 +166,13 @@ def main(config):
             "n_clusters": n_labels_pred,
             "dim": X.shape[-1],
             "top_words": top5keywords,
-            "best_paper": best_papers
+            "best_paper": best_papers,
         }
-        out_file = os.path.join(dir_path, "results", f"exp_{config.mlflow.experiment_name}_{save_dict['clusterer']}_n_clusters_{save_dict['n_clusters']}_dim_{save_dict['dim']}.json")
+        out_file = os.path.join(
+            dir_path,
+            "results",
+            f"exp_{config.mlflow.experiment_name}_{save_dict['clusterer']}_n_clusters_{save_dict['n_clusters']}_dim_{save_dict['dim']}.json",
+        )
         save_dict.update(metrics_)
         with open(out_file, "w") as fh:
             json.dump(save_dict, fh)
