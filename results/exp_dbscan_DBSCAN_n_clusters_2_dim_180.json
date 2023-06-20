@@ -1,0 +1,1 @@
+{"clusterer": "DBSCAN", "n_clusters": 2, "dim": 180, "top_words": [[], []], "best_paper": [[], []], "silhouette": -0.061151560327300916, "calinski": 6.180074074316393, "davies": 1.788901184195171}
