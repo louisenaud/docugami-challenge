@@ -22,7 +22,7 @@ from hydra import utils
 from hydra.utils import instantiate
 from sklearn.decomposition import LatentDirichletAllocation
 from sklearn.feature_extraction.text import CountVectorizer
-
+from sklearn.neighbors._nearest_centroid import NearestCentroid
 from settings import stop_words_all
 from src.utils.file_io import load_csv_data
 
@@ -82,7 +82,18 @@ def main(config):
         mlflow.log_params(clusterer.get_params())
         mlflow.log_artifacts(utils.to_absolute_path("configs"))
         log.info(f"Done clustering for {n_labels_pred} clusters")
-        distances = clusterer.fit_transform(X)
+        nc = NearestCentroid()
+        nc.fit(X, labels_pred)
+        centroids = nc.centroids_
+        distances = sklearn.metrics.pairwise_distances(X, centroids)
+        if isinstance(clusterer, sklearn.cluster.KMeans):
+            distances = clusterer.fit_transform(X)
+        # elif isinstance(clusterer, sklearn.cluster.SpectralClustering):
+        elif isinstance(clusterer, sklearn.cluster.AffinityPropagation):
+            cluster_centers_indices = clusterer.cluster_centers_indices_
+
+
+
 
         log.info("Computing metrics")
         metrics_ = {
@@ -138,20 +149,30 @@ def main(config):
                 current_keywords = selected_topics(lda, vectorizers[current_vectorizer])
                 top5keywords.append(current_keywords[:5])
                 # distances
-                indices = np.argwhere(labels_pred == current_vectorizer)
-                current_distances = distances[indices, current_vectorizer]
-                min_idx = np.argmin(current_distances)
-                best_paper_idx = indices[min_idx]
-                best_papers.append(full_titles[best_paper_idx])
+                if isinstance(clusterer, sklearn.cluster.KMeans):
+                    indices = np.argwhere(labels_pred == current_vectorizer)
+                    current_distances = distances[indices, current_vectorizer]
+                    min_idx = np.argmin(current_distances)
+                    best_paper_idx = indices[min_idx]
+                    best_papers.append(str(full_titles[best_paper_idx]))
+                elif isinstance(clusterer, sklearn.cluster.AffinityPropagation):
+                    cluster_center_idx = cluster_centers_indices[current_vectorizer]
+                    best_papers.append(str(full_titles[cluster_center_idx]))
+                else:
+                    indices = np.argwhere(labels_pred == current_vectorizer)
+                    current_distances = distances[indices, current_vectorizer]
+                    min_idx = np.argmin(current_distances)
+                    best_paper_idx = indices[min_idx]
+                    best_papers.append(str(full_titles[best_paper_idx]))
 
         save_dict = {
-            "clusterer": clusterer.__class__.__name__,
+            "clusterer": str(clusterer.__class__.__name__),
             "n_clusters": n_labels_pred,
             "dim": X.shape[-1],
             "top_words": top5keywords,
             "best_paper": best_papers
         }
-        out_file = f"results/exp_{save_dict['clusterer']}_n_clusters_{save_dict['n_clusters']}_dim_{save_dict['dim']}.json"
+        out_file = os.path.join(dir_path, "results", f"exp_{config.mlflow.experiment_name}_{save_dict['clusterer']}_n_clusters_{save_dict['n_clusters']}_dim_{save_dict['dim']}.json")
         save_dict.update(metrics_)
         with open(out_file, "w") as fh:
             json.dump(save_dict, fh)
