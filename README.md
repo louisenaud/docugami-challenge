@@ -139,4 +139,19 @@ Looking at the curves, it seems,
 - in dimension 100 and above, the ELBOW curve does not present a distinct change in slope; the results are inconclusive
 The ELBOW curve gives results that are consistent with the 3 metrics we chose.
 
+### Experiments with different algorithms
+All results can be visualized / explored in the streamlit app, at the page `Experiments`.
+Our findings are that:
+- overall, clusters are not very separable with this representation
+- 
+
+### Perspectives
+From our experiments, it seems that:
+- other fields might be used in order to create more consistent links between papers, such as the authors, the periodical...
+  - this involves dealing with missing data on a graph clustering problem
+  - 
+
+- more data would be beneficial, in order to train more potent models, such as deep neural networks, as they tend to 
+de-tangle the feature space and create representations that form more separable clusters.
+
 
