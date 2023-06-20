@@ -143,13 +143,18 @@ The ELBOW curve gives results that are consistent with the 3 metrics we chose.
 All results can be visualized / explored in the streamlit app, at the page `Experiments`.
 Our findings are that:
 - overall, clusters are not very separable with this representation
-- 
+- it seems k-means, with dimensionality reduction to dim=2, yields the best results in terms of metrics (silhouette score=0.75)
+- while smaller numbers of clusters yield better metrics, the selected tags are more in accordance with the main paper 
+with a higher number of clusters.
+- Clustering methods that also determine the number of clusters yield a very high number of clusters (~100); there is 
+most likely a higher than number 5 or 10  of topics, but not enough data to populate the clusters and hence get a good score for the clustering
 
 ### Perspectives
 From our experiments, it seems that:
 - other fields might be used in order to create more consistent links between papers, such as the authors, the periodical...
   - this involves dealing with missing data on a graph clustering problem
-  - 
+  - the idea would be to modify the constraints of the convex optimization problem for spectral clustering, similarly 
+  as in the paper https://papers.nips.cc/paper_files/paper/2014/file/4d6e4749289c4ec58c0063a90deb3964-Paper.pdf
 
 - more data would be beneficial, in order to train more potent models, such as deep neural networks, as they tend to 
 de-tangle the feature space and create representations that form more separable clusters.
