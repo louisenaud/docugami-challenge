@@ -37,7 +37,6 @@ def print_config(
     tree = Tree(f":gear: CONFIG", style=style, guide_style=style)
 
     for field in fields:
-        print(field)
         branch = tree.add(field, style=style, guide_style=style)
 
         config_section = config.get(field)
